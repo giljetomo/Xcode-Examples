@@ -27,9 +27,28 @@ class ViewController: UIViewController {
   fileprivate func registerForKeyboardNotification() {
     // 1. I want to listen to the keyboard showing / hiding
     //    - "hey iOS, tell(notify) me when keyboard shows / hides"
-    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
+//    NotificationCenter.default.addObserver(self, selector: #selector(keyboardWasShown(_:)), name: UIResponder.keyboardDidShowNotification, object: nil)
     NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillBeHidden(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
   }
+    
+    @objc func adjustForKeyboard(notification: Notification) {
+        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
+
+        let keyboardScreenEndFrame = keyboardValue.cgRectValue
+        let keyboardViewEndFrame = view.convert(keyboardScreenEndFrame, from: view.window)
+
+        if notification.name == UIResponder.keyboardWillHideNotification {
+            scrollView.contentInset = .zero
+        } else {
+            scrollView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: keyboardViewEndFrame.height - view.safeAreaInsets.bottom, right: 0)
+        }
+
+        scrollView.scrollIndicatorInsets = scrollView.contentInset
+
+//        let selectedRange = scrollView.
+//        scrollView.scrollRangeToVisible(selectedRange)
+    }
   
   @objc func keyboardWasShown(_ notification: NSNotification) {
     // 2. When notified, I want to ask iOS the size(height) of the keyboard
@@ -37,7 +56,7 @@ class ViewController: UIViewController {
     
     let keyboardFrame = keyboardFrameValue.cgRectValue
     let keyboardHeight = keyboardFrame.size.height
-    
+    print(keyboardHeight)
     // 3. Tell scrollview to scroll up (height)
     let insets = UIEdgeInsets(top: 0, left: 0, bottom: keyboardHeight, right: 0)
     scrollView.contentInset = insets
