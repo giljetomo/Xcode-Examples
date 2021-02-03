@@ -26,7 +26,8 @@ class EmojiTableViewCell: UITableViewCell {
     lb.numberOfLines = 0
     return lb
   }()
-  
+
+
   override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
     let vStackView = VerticalStackView(arrangedSubviews: [
